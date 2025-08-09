@@ -3,7 +3,6 @@ pipeline {
 
     stages {
         /*
-
         stage('Build') {
             agent {
                 docker {
@@ -13,6 +12,7 @@ pipeline {
             }
             steps {
                 sh '''
+                    echo "Running build stage..."
                     ls -la
                     node --version
                     npm --version
@@ -33,10 +33,12 @@ pipeline {
                             reuseNode true
                         }
                     }
-
                     steps {
                         sh '''
-                            #test -f build/index.html
+                            echo "Running unit tests..."
+                            node --version
+                            npm --version
+                            npm ci
                             npm test
                         '''
                     }
@@ -50,23 +52,41 @@ pipeline {
                 stage('E2E') {
                     agent {
                         docker {
-                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            image 'mcr.microsoft.com/playwright:v1.39.0-focal' // ✅ Includes Node.js + Playwright
                             reuseNode true
                         }
                     }
-
                     steps {
                         sh '''
+                            echo "Running E2E tests..."
+
+                            # Install project dependencies if not already
+                            npm install
+
+                            # Install serve for local static hosting
                             npm install serve
-                            node_modules/.bin/serve -s build &
+
+                            # Start local server to host the build output
+                            npx serve -s build &
+
+                            # Wait for the server to start
                             sleep 10
-                            npx playwright test  --reporter=html
+
+                            # Run Playwright tests with HTML report
+                            npx playwright test --reporter=html
                         '''
                     }
-
                     post {
                         always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                            publishHTML([
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: false,
+                                keepAll: false,
+                                reportDir: 'playwright-report',
+                                reportFiles: 'index.html',
+                                reportName: 'Playwright HTML Report',
+                                useWrapperFileDirectly: true
+                            ])
                         }
                     }
                 }
