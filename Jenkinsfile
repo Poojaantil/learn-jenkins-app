@@ -9,7 +9,7 @@ pipeline {
                     reuseNode true
                 }
             }
-
+        }
         // 👇 Paste the Test stage here
         stage('Test') {
             agent {
