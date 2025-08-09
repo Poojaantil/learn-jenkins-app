@@ -3,8 +3,12 @@ pipeline {
 
     stages {
         stage('Build') {
-            // your build code here
-        }
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
 
         // 👇 Paste the Test stage here
         stage('Test') {
