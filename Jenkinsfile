@@ -39,17 +39,11 @@ pipeline {
                     npm test
                 '''
             }
-            post {
-                always {
-                    echo 'Test stage completed.'
-                }
-                success {
-                    echo 'Tests passed successfully.'
-                }
-                failure {
-                    echo 'Tests failed!'
-                }
-            }
+        }
+    }
+    post {
+        always {
+            junit  'test-results/junit.xml'
         }
     }
 }
