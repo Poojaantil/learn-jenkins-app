@@ -2,11 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
-            // your build code here
-        }
-
-        // 👇 Paste the Test stage here
         stage('Test') {
             agent {
                 docker {
