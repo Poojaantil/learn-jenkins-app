@@ -7,45 +7,58 @@ pipeline {
     }
 
     stages {
-        stage('Build and Test (Parallel)') {
+
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
+                '''
+            }
+        }
+
+        stage('Tests') {
             parallel {
-                
-                stage('Build') {
+                stage('Unit tests') {
                     agent {
                         docker {
                             image 'node:18-alpine'
                             reuseNode true
                         }
                     }
+
                     steps {
                         sh '''
-                            echo "Starting Build Stage..."
-                            ls -la
-                            node --version
-                            npm --version
-                            npm ci
-                            npm run build
-                            ls -la
+                            #test -f build/index.html
+                            npm test
                         '''
                     }
                 }
 
-                stage('Test') {
+                stage('E2E') {
                     agent {
                         docker {
-                            image 'node:18-alpine'
+                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                             reuseNode true
                         }
                     }
+
                     steps {
                         sh '''
-                            echo "Starting Test Stage..."
-                            node --version
-                            npm --version
-                            npm ci
-                            test -f build/index.html || echo "Build not found!"
-                            npm test || true
-                        '''
+                            npm install serve
+                            node_modules/.bin/serve -s build &
+                            sleep 10
+                         '''
                     }
                 }
             }
@@ -60,13 +73,11 @@ pipeline {
             }
             steps {
                 sh '''
-                    echo "Starting Deploy Stage..."
-                    apk add --no-cache bash
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
-                    echo "Deploying to Netlify site ID: $NETLIFY_SITE_ID"
+                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --auth $NETLIFY_AUTH_TOKEN --site $NETLIFY_SITE_ID --message "Deployed via Jenkins"
+                    node_modules/.bin/netlify deploy --dir=build --prod
                 '''
             }
         }
