@@ -66,7 +66,7 @@ pipeline {
                     node_modules/.bin/netlify --version
                     echo "Deploying to production site ID: $NETLIFY_SITE_ID "
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=new --prod
+                    node_modules/.bin/netlify deploy --dir=build --prod --auth $NETLIFY_AUTH_TOKEN --site $NETLIFY_SITE_ID
                     # Example deployment command:
                     # node_modules/.bin/netlify deploy --dir=build --prod --auth $NETLIFY_AUTH_TOKEN --site $NETLIFY_SITE_ID
                 '''
