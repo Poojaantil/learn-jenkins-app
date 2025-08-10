@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        NETLIFY_SITE_ID = '347df3ff-beff-43a3-8962-08aedb778918'
+    }
+
     stages {
         stage('Build and Test (Parallel)') {
             parallel {
@@ -59,6 +63,7 @@ pipeline {
                     echo "Starting Deploy Stage..."
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
+                    echo "Deploying to production site ID: $NETLIFY_SITE_ID "
                     # Example deployment command:
                     # node_modules/.bin/netlify deploy --dir=build --prod --auth $NETLIFY_AUTH_TOKEN --site $NETLIFY_SITE_ID
                 '''
