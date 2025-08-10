@@ -72,10 +72,10 @@ pipeline {
                     node_modules/.bin/netlify --version
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy \
-                        --dir=build \
-                        --auth=$NETLIFY_AUTH_TOKEN \
-                        --site=$NETLIFY_SITE_ID \
-                        --message "Deployed via Jenkins"
+                        --dir=build --prod
+                        #--auth=$NETLIFY_AUTH_TOKEN \
+                        #--site=$NETLIFY_SITE_ID \
+                        #--message "Deployed via Jenkins"
                 '''
             }
         }
