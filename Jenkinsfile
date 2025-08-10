@@ -50,9 +50,8 @@ pipeline {
             }
             steps {
                 sh '''
-                    npm install serve
-                    node_module/.bin/server -s build $
-                    sleep 10
+                    echo "🚀 E2E Test Stage"
+                    # Replace this with your actual E2E test command
                     echo "Running E2E tests..."
                     npm run test:e2e || true
                 '''
